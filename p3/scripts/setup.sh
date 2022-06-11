@@ -23,17 +23,10 @@ sudo chmod +x kubectl
 sudo mv kubectl /usr/local/bin
 sudo kubectl version
 
-
 echo -e "\033[0;32m╔══════════════╗\033[0m"
 echo -e "\033[0;32m║ Setup k3d... ║\033[0m"
 echo -e "\033[0;32m╚══════════════╝\033[0m"
 sudo wget -q -O — https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-
-# echo -e "\033[0;32m╔═════════════════╗\033[0m"
-# echo -e "\033[0;32m║ Setup ArgoCD... ║\033[0m"
-# echo -e "\033[0;32m╚═════════════════╝\033[0m"
-# sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-# sudo chmod +x /usr/local/bin/argocd
 
 echo -e "\033[0;32m╔════════════════════╗\033[0m"
 echo -e "\033[0;32m║ Finishing setup... ║\033[0m"
