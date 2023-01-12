@@ -2,32 +2,26 @@
 
 ## Requirements
 
-### Vagrant host only
+### VirtualBox on Debian GNU/Linux 10 (buster)
 
-Check if an host-only network already exists :
+Update packages:
 
-```sh
-$ vboxmanage list hostonlyifs
-Name:            vboxnet0
-...
+```bash
+sudo echo 'deb https://download.virtualbox.org/virtualbox/debian buster contrib
+' >>> /etc/apt/sources.list.d/virtualbox.list
 ```
 
-If not, create a new one, configue it with the correct IP and netmask and disable DHCP :
-
-```zsh
-$ vboxmanage hostonlyif create
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-Interface 'vboxnet1' was successfully created
-$ vboxmanage hostonlyif ipconfig vboxnet1 --ip 192.168.42.1 --netmask 255.255.255.0
-$ vboxmanage dhcpserver modify --ifname IF_NAME --disable
+```bash
+wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
 ```
 
-See [this link](https://gist.github.com/magnetikonline/46a483cc8c9d0451074642f860d0cac1) to know more about host-only interfaces.
+```bash
+sudo apt-get update
+sudo apt-get install virtualbox-7.0
+```
 
-### vagrant-vbguest
-
-`vagrant-vbguest` is a `Vagrant` plugin which automatically installs the host's VirtualBox Guest Additions on the guest system.
-
-This plugin is used because the kernel of `centos/8` Vagrant box need to be upgraded.
-
-See [issue #367](https://github.com/dotless-de/vagrant-vbguest/issues/367) and [PR #373](https://github.com/dotless-de/vagrant-vbguest/pull/373) for more information.
+```bash
+wget https://download.virtualbox.org/virtualbox/7.0.0/Oracle_VM_VirtualBox_Extension_Pack-7.0.0.vbox-extpack
+sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-7.0.0.vbox-extpack
+```
