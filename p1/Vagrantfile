@@ -1,11 +1,11 @@
 # Vagrant Config
 
-VM_BOX = "centos/8"  #"generic/centos8" # "centos/stream8" #"centos/8" 
-VM_BOX_VERSION = "20210210.0"
+VM_BOX = "generic/alpine317"      # Debian 11
+VM_BOX_VERSION = "4.2.8"
 VM_PROVIDER = "virtualbox"
 VM_NETWORK = "private_network"
 VM_CPUS = "1"
-VM_MEMORY = "512"
+VM_MEMORY = "1024"
 
 # Machines Config
 
@@ -21,21 +21,31 @@ SERVER_WORKER_IP = "192.168.56.111"
 # K3S_VERSION = 'v1.21.10+k3s1'
 
 Vagrant.configure("2") do |config|
+  # Box configs
   config.vm.box = VM_BOX
-  # config.vm.box_version = VM_BOX_VERSION
+  config.vm.box_version = VM_BOX_VERSION
 
-	config.vm.synced_folder ".", "/shared", type: 'virtualbox'
-  config.vbguest.installer_options = { allow_kernel_upgrade: true }
+	# config.vm.synced_folder "./auth", "/shared", type: 'virtualbox'
 
+  # Require the `vagrant-vbguest` plugin.
+  # See the `vagrant-vbguest` section in the README.md
+  # config.vbguest.installer_options = { allow_kernel_upgrade: true }
+  # config.vbguest.auto_update = false
+
+  # Provider configs
   config.vm.provider VM_PROVIDER do |vb|
     vb.cpus = VM_CPUS
     vb.memory = VM_MEMORY
   end
 
   # config.vm.provision "shell", path: "scripts/firewalld-disable.sh"
-  config.vm.provision "file", source: "./auth/id_rsa.pub", destination: "/shared/id_rsa.pub"
-  config.vm.provision "file", source: "./auth/id_rsa", destination: "/shared/id_rsa"
-  config.vm.provision "shell", path: "provision-base.sh"
+
+  # Shared configuration
+  # Copy the ssh keys to `/tmp` in the guest machine and run the provision script
+  # config.vm.provision "file", source: "./auth/id_rsa.pub", destination: "/tmp/id_rsa.pub"
+  # config.vm.provision "file", source: "./auth/id_rsa", destination: "/tmp/id_rsa"
+  # config.vm.provision "shell", path: "./scripts/provision-base.sh"
+
   # config.vm.provision 'centos8-repos-point2vault', type: 'shell', run: 'once' do |sh|
   #   sh.env = { :PATH => '/usr/local/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin' }
   #   sh.inline = <<~'SHELL'
@@ -43,7 +53,7 @@ Vagrant.configure("2") do |config|
   #     find /etc/yum.repos.d -type f -name '*.repo' -exec \
   #       sed -i -e '/mirrorlist.*/d' -e 's%#baseurl=http://mirror.centos.org%baseurl=http://vault.centos.org%g' {} \;
   #   SHELL
-  end
+  # end
 
   config.vm.define SERVER_NAME do |s|
     s.vm.hostname = SERVER_NAME
@@ -52,16 +62,20 @@ Vagrant.configure("2") do |config|
       vmp.name = SERVER_NAME
     end
 
-    s.vm.provision "up", type: "shell", path: "provision-server.sh"
+    s.vm.provision "file", source: "./auth/id_rsa.pub", destination: "/home/vagrant/id_rsa.pub"
+    s.vm.provision "file", source: "./auth/id_rsa", destination: "/home/vagrant/id_rsa"
+    s.vm.provision "shell", privileged: true,  path: "./scripts/provision-server.sh"
   end
 
-  config.vm.define SERVER_WORKER_NAME do |sw|
-    sw.vm.hostname = SERVER_WORKER_NAME
-    sw.vm.network VM_NETWORK, ip: SERVER_WORKER_IP
-    sw.vm.provider VM_PROVIDER do |vmp|
-      vmp.name = SERVER_WORKER_NAME
-    end
+  # config.vm.define SERVER_WORKER_NAME do |sw|
+  #   sw.vm.hostname = SERVER_WORKER_NAME
+  #   sw.vm.network VM_NETWORK, ip: SERVER_WORKER_IP
+  #   sw.vm.provider VM_PROVIDER do |vmp|
+  #     vmp.name = SERVER_WORKER_NAME
+  #   end
 
-    sw.vm.provision "up", type: "shell", path: "provision-server-worker.sh"
-  end
+  #   sw.vm.provision "file", source: "./auth/id_rsa.pub", destination: "/tmp/id_rsa.pub"
+  #   sw.vm.provision "file", source: "./auth/id_rsa", destination: "/tmp/id_rsa"
+  #   kubenodes.vm.provision "shell", privileged: true,  path: "scripts/pro.sh"
+  # end
 end
