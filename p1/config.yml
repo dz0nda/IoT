@@ -1,16 +1,18 @@
 vagrantbox: generic/alpine317
-vmguest: :alpine
 provider: virtualbox
-network: 192.168.56
+shared:
+  network: 192.168.56.
+  cpu: 1
+  ram: 1024
 server:
   hostname: dzondaS
-  cpu: 1
-  ram: 1024
-  ip: 192.168.56.110
   network: private_network
+  ip: 192.168.56.110
+  cpu: 2
+  ram: 1024
 agent:
   hostname: dzondaSW 
-  cpu: 1
-  ram: 1024
-  ip: 192.168.56.111
   network: private_network
+  ip: 192.168.56.111
+  cpu: 2
+  ram: 1024
