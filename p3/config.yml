@@ -1,0 +1,9 @@
+vagrantbox: generic/ubuntu2204
+provider: virtualbox
+network: 192.168.56
+server:
+  hostname: dzondaS
+  cpu: 2
+  ram: 2048
+  ip: 192.168.56.110
+  network: private_network
