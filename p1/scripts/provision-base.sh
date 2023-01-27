@@ -1,18 +1,24 @@
 #! /bin/sh
 
-mkdir -p /shared/confs
 
-mkdir -p /root/.ssh
-cp /shared/id_rsa*  /root/.ssh/
+function setup_root_ssh() {
+    sudo passwd root
 
-chmod 400 /root/.ssh/id_rsa*
-chown root:root  /root/.ssh/id_rsa*
+    mkdir -p /root/.ssh
 
-cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
-chmod 400 /root/.ssh/authorized_keys
-chown root:root /root/.ssh/authorized_keys
+    mv ./id_rsa.pub /root/.ssh/id_rsa.pub
+    mv ./id_rsa     /root/.ssh/id_rsa
+    cat /root/.ssh/id_rsa.pub >>  /root/.ssh/authorized_keys
 
-# sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-# sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+    chmod 400  /root/.ssh/id_rsa*
+    chmod 400  /root/.ssh/authorized_keys
+    
+    chown root:root  /root/.ssh/id_rsa*
+    chown root:root  /root/.ssh/authorized_keys
+}
 
-# systemctl disable firewalld --now
+function main() {
+    setup_root_ssh
+}
+
+main
