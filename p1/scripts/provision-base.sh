@@ -7,6 +7,8 @@ function setup_ssh() {
 
     chmod 400   .ssh/id_rsa*
     chmod 400   .ssh/authorized_keys
+    echo "PasswordAuthentification no" | tee /etc/ssh/sshd_config
+    service sshd restart
 }
 
 setup_ssh
