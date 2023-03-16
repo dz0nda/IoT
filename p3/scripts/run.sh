@@ -8,6 +8,10 @@ info()
     echo '[INFO] ' "$@"
 }
 
+start_k3d() {
+    k3d cluster create k3d-cluster
+}
+
 setup_argocd() {
     VERSION=v2.5.4
 

@@ -66,6 +66,7 @@ install_kubectl() {
 
     # Install
     $SUDO install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    rm -rf kubectl
 
     # kubctl as non-root user
     $SUDO groupadd kubelet
@@ -84,7 +85,6 @@ install_k3d() {
     info 'k3d installed'
 }
 
-
-check_command "docker" || install_docker
-check_command "kubectl" || install_kubectl
-check_command "k3d" || install_k3d
+# install_docker
+# install_kubectl
+install_k3d

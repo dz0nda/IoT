@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-{{  }}
+  labels:
+    app: app-{{  }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-{{  }}
+  template:
+    metadata:
+      labels:
+        app: app-{{ }}
+    spec:
+      containers:
+      - name: my-app
+        image: my-app:latest
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh", "-c", "kubectl build -t my-app:latest -f /path/to/Dockerfile && exec /app/bin/start-app"]
+        env:
+        - name: PORT
+          value: "80"
+        volumeMounts:
+        - name: my-app-config
+          mountPath: /app/config
+        - name: my-app-data
+          mountPath: /app/data
+      volumes:
+      - name: my-app-config
+        configMap:
+          name: my-app-config
+      - name: my-app-data
+        persistentVolumeClaim:
+          claimName: my-app-data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app1-service
+  labels:
+    app: app1
+spec:
+  selector:
+    app: app1
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app1-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: app1.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app1-service
+            port:
+              name: http
