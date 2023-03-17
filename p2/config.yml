@@ -1,10 +1,21 @@
 vagrantbox: generic/alpine317
-vmguest: :alpine
 provider: virtualbox
-network: 192.168.56
-server:
-  hostname: dzondaS
-  cpu: 1
-  ram: 1024
-  ip: 192.168.56.110
-  network: private_network
+network: 192.168.42
+machines:
+  server:
+    hostname: dzondaS
+    network: private_network
+    ip: 192.168.42.110
+    cpu: 2
+    ram: 2048
+    provision:
+      files:
+        app:
+          src: "src"
+          out: "/home/vagrant/app"
+        # manifests:
+        #   src: "manifests"
+        #   out: "/home/vagrant/manifests"
+      shell:
+        k3s:
+          path: "./scripts/provision-server.sh"

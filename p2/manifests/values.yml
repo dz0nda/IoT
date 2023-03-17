@@ -1,0 +1,10 @@
+apps:
+  app1:
+    name: app1
+    replicas: 1
+  app2:
+    name: app2
+    replicas: 3
+  app3:
+    name: app3
+    replicas: 1

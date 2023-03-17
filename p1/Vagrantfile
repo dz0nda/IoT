@@ -7,37 +7,27 @@ require 'yaml'
 options = YAML.load_file('config.yml')
 
 Vagrant.configure("2") do |config|
-  config.vm.box = options.fetch('vagrantbox')
+  default = options.fetch('default')
 
-  config.vm.provider options.fetch('provider') do |vb|
-    vb.cpus = options.fetch('shared').fetch('cpu')
-    vb.memory = options.fetch('shared').fetch('ram')
-  end
+  options.fetch('machines').each do |name, machine|
+    config.vm.define "#{name}" do |instance|
+      instance.vm.box = machine.fetch('vagrantbox') || default.fetch('vagrantbox')
+      instance.vm.network machine.fetch('network'), ip: machine.fetch('ip')
+      instance.vm.hostname = machine.fetch('hostname')
 
-  config.vm.provision "file", source: "./auth", destination: "/home/vagrant/auth"
-  config.vm.provision "shell", path: "scripts/provision-base.sh"
+      instance.vm.provider machine.fetch('provider') do |provider|
+        provider.name = machine.fetch('hostname')
+        provider.cpus = machine.fetch('cpu')
+        provider.memory = machine.fetch('ram')
+      end
 
-  # Server
-  config.vm.define options.fetch('server').fetch('hostname') do |server|
-    server.vm.hostname = options.fetch('server').fetch('hostname')
-    server.vm.network options.fetch('server').fetch('network'), ip: options.fetch('server').fetch('ip')
-    
-    server.vm.provider options.fetch('provider') do |provider|
-      provider.name = options.fetch('server').fetch('hostname')
+      machine.fetch('provision').fetch('files').each do |_, file|
+        instance.vm.provision "file", source: "#{file['src']}", destination: "#{file['out']}"
+      end
+
+      machine.fetch('provision').fetch('shell').each do |_, script|
+        instance.vm.provision "shell", path: "#{script['path']}"
+      end
     end
-
-    server.vm.provision "shell", path: "scripts/provision-server.sh"
-  end
-
-  # Worker
-  config.vm.define options.fetch('agent').fetch('hostname') do |worker|
-    worker.vm.hostname = options.fetch('agent').fetch('hostname')
-    worker.vm.network options.fetch('agent').fetch('network'), ip: options.fetch('agent').fetch('ip')
-    
-    worker.vm.provider options.fetch('provider') do |provider|
-      provider.name = options.fetch('agent').fetch('hostname')
-    end
-
-    worker.vm.provision "shell", path: "scripts/provision-worker.sh"
   end
 end

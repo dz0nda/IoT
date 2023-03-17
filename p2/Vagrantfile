@@ -1,3 +1,4 @@
+# encoding: utf-8
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -6,36 +7,31 @@ require 'yaml'
 options = YAML.load_file('config.yml')
 
 Vagrant.configure("2") do |config|
-  config.vm.box = options.fetch('vagrantbox')
+  machines = options.fetch('machines')
+  machines.each do |name, machine|
+    config.vm.define "#{name}" do |instance|
+      instance.vm.box = options.fetch('vagrantbox')
+      instance.vm.hostname = machine.fetch('hostname')
+      instance.vm.network machine.fetch('network'), ip: machine.fetch('ip')
+  #   # config.vm.network "forwarded_port", guest: 80, host: 8080
 
-  config.vm.provider options.fetch('provider') do |vb|
-    vb.cpus = options.fetch('server').fetch('cpu')
-    vb.memory = options.fetch('server').fetch('ram')
-  end
+      instance.vm.provider options.fetch('provider') do |provider|
+        provider.name = machine.fetch('hostname')
+        provider.cpus = machine.fetch('cpu')
+        provider.memory = machine.fetch('ram')
+      end
 
-  config.vm.define options.fetch('server').fetch('hostname') do |server|
-    server.vm.hostname = options.fetch('server').fetch('hostname')
-    server.vm.network options.fetch('server').fetch('network'), ip: options.fetch('server').fetch('ip')
-    
-    server.vm.provider options.fetch('provider') do |vmp|
-      vmp.name = options.fetch('server').fetch('hostname')
+      files = machine.fetch('provision').fetch('files')
+      files.each do |_, file|
+        instance.vm.provision "file", source: "#{file['src']}", destination: "#{file['out']}"
+      end
+
+      scripts = machine.fetch('provision').fetch('shell')
+      scripts.each do |_, script|
+        instance.vm.provision "shell", path: "#{script['path']}"
+      end
+
+      instance.vm.synced_folder "./manifests", "/home/vagrant/manifests", type: "virtualbox"
     end
-
-    
-    # server.vm.synced_folder "./manifests", "/home/vagrant/manifests", type: "virtualbox"
-    # server.vm.synced_folder "./src", "/home/vagrant/manifests", type: "virtualbox"
-    server.vm.provision "file", source: "./manifests", destination: "/home/vagrant/manifests"
-    server.vm.provision "file", source: "./src", destination: "/home/vagrant/app"
-    # server.vm.provision "file", source: "./src/index.html", destination: "/app/index.html"
-    server.vm.provision "shell", path: "scripts/provision-server.sh"
-    
-    # # Triggers
-    # server.trigger.after :up do |trigger|
-    #   trigger.name = "k3s"
-    #   trigger.info = "start k3s server"
-    #   trigger.run_remote = {
-    #     inline: "sh /home/vagrant/scripts/provision-server.sh"
-    #   }
-    # end
   end
 end
