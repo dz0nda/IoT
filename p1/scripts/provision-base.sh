@@ -1,15 +1,18 @@
 #! /bin/sh
 
-# Copy the keys to the ssh folder
-mv /tmp/id_rsa*  /root/.ssh/
+function setup_ssh() {
+    mv ./auth/id_rsa.pub            .ssh/id_rsa.pub
+    mv ./auth/id_rsa                .ssh/id_rsa
+    cat .ssh/id_rsa.pub >>    .ssh/authorized_keys
+    echo "PasswordAuthentication no" | tee -a /etc/ssh/sshd_config
+    service sshd restart
 
-# Give root permissions to the keys
-chmod 400 /root/.ssh/id_rsa*
-chown root:root  /root/.ssh/id_rsa*
+    chmod 400   .ssh/id_rsa*
+    chmod 400   .ssh/authorized_keys
+}
 
-# Add the public key as authorized to connect the machine
-cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+setup_ssh
 
-# Give root permissions to the authorized keys
-chmod 400 /root/.ssh/authorized_keys
-chown root:root /root/.ssh/authorized_keys
+echo "alias k='kubectl'" | tee -a "/home/vagrant/.profile"
+chown vagrant:vagrant /home/vagrant/.profile
+chmod 644 /home/vagrant/.profile

@@ -1,31 +1,85 @@
 # P1
 
-## Requirements
+## Setup
 
-### Vagrant host only
+Launch the project with:
 
-Check if an host-only network already exists :
+```
+vagrant up
+```
 
-```sh
-$ vboxmanage list hostonlyifs
-Name:            vboxnet0
+You can verify that everything is setup with `vagrant status`:
+
+```bash
+ubuntu@vps-e0cdfc0a:~/IoT/p1$ vagrant status
 ...
+
+Current machine states:
+
+dzondaS                   running (virtualbox)
+dzondaSW                  running (virtualbox)
 ```
 
-If not, create a new one, configue it with the correct IP and netmask and disable DHCP :
+You can ssh in a VM with `vagrant ssh`:
 
-```zsh
-$ vboxmanage hostonlyif create
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-Interface 'vboxnet1' was successfully created
-$ vboxmanage hostonlyif ipconfig vboxnet1 --ip 192.168.42.1 --netmask 255.255.255.0
-$ vboxmanage dhcpserver modify --ifname IF_NAME --disable
+```bash
+ubuntu@vps-e0cdfc0a:~/IoT/p1$ vagrant ssh dzondaS
+dzondaS:~$ 
 ```
 
-### vagrant-vbguest
+or 
 
-`vagrant-vbguest` is a `Vagrant` plugin which automatically installs the host's VirtualBox Guest Additions on the guest system.
+```bash
+ubuntu@vps-e0cdfc0a:~/IoT/p1$ vagrant ssh dzondaSW
+dzondaSW:~$ 
+```
 
-This plugin is used because the kernel of `centos/8` Vagrant box need to be upgraded.
+### Check k3s is correctly setup
 
-See [issue #367](https://github.com/dotless-de/vagrant-vbguest/issues/367) and [PR #373](https://github.com/dotless-de/vagrant-vbguest/pull/373) for more information.
+```bash
+ubuntu@vps-e0cdfc0a:~/IoT/p1$ vagrant ssh dzondaS
+dzondaS:~$ kubectl get nodes -o wide
+NAME       STATUS   ROLES                  AGE    VERSION        INTERNAL-IP      EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION   CONTAINER-RUNTIME
+dzondasw   Ready    <none>                 72s    v1.25.6+k3s1   192.168.56.111   <none>        Alpine Linux v3.17   5.15.81-0-virt   containerd://1.6.15-k3s1
+dzondas    Ready    control-plane,master   2m6s   v1.25.6+k3s1   192.168.56.110   <none>        Alpine Linux v3.17   5.15.81-0-virt   containerd://1.6.15-k3s1
+dzondaS:~$ ifconfig eth1
+eth1      Link encap:Ethernet  HWaddr 08:00:27:AC:EF:16  
+          inet addr:192.168.56.110  Bcast:0.0.0.0  Mask:255.255.255.0
+          inet6 addr: fe80::a00:27ff:feac:ef16/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:931 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1197 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:148314 (144.8 KiB)  TX bytes:810817 (791.8 KiB)
+```
+
+```bash
+ubuntu@vps-e0cdfc0a:~/IoT/p1$ vagrant ssh dzondaS
+dzondaS:~$ kubectl get nodes -o wide
+NAME       STATUS   ROLES                  AGE    VERSION        INTERNAL-IP      EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION   CONTAINER-RUNTIME
+dzondasw   Ready    <none>                 72s    v1.25.6+k3s1   192.168.56.111   <none>        Alpine Linux v3.17   5.15.81-0-virt   containerd://1.6.15-k3s1
+dzondas    Ready    control-plane,master   2m6s   v1.25.6+k3s1   192.168.56.110   <none>        Alpine Linux v3.17   5.15.81-0-virt   containerd://1.6.15-k3s1
+dzondaS:~$ ifconfig eth1
+eth1      Link encap:Ethernet  HWaddr 08:00:27:AC:EF:16  
+          inet addr:192.168.56.110  Bcast:0.0.0.0  Mask:255.255.255.0
+          inet6 addr: fe80::a00:27ff:feac:ef16/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:931 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1197 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:148314 (144.8 KiB)  TX bytes:810817 (791.8 KiB)
+```
+
+```bash
+ubuntu@vps-e0cdfc0a:~/IoT/p1$ vagrant ssh dzondaSW
+dzondaSW:~$ ifconfig eth1
+eth1      Link encap:Ethernet  HWaddr 08:00:27:85:47:D9  
+          inet addr:192.168.56.111  Bcast:0.0.0.0  Mask:255.255.255.0
+          inet6 addr: fe80::a00:27ff:fe85:47d9/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:1247 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1011 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:835870 (816.2 KiB)  TX bytes:159157 (155.4 KiB)
+
+```

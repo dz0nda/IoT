@@ -1,12 +1,16 @@
-#! /bin/sh
+#!/usr/bin/env sh
 
-# Set up ssh keys
-mkdir -p /root/.ssh
-mv /tmp/id_vagrant*  /root/.ssh/
+# Copy the keys to the ssh folder
+mv ./id_rsa.pub .ssh/id_rsa.pub
+mv ./id_rsa     .ssh/id_rsa
 
-chmod 400 /root/.ssh/id_vagrant*
-chown root:root /root/.ssh/id_vagrant*
+# Give root permissions to the keys
+chmod 400 .ssh/id_rsa*
+chown root:root .ssh/id_rsa*
 
-cat /root/.ssh/id_vagrant.pub >> /root/.ssh/authorized_keys
-chmod 400 /root/.ssh/authorized_keys
-chown root:root /root/.ssh/authorized_keys
+# Add the public key as authorized to connect the machine
+cat .ssh/id_rsa.pub >> .ssh/authorized_keys
+
+# Give root permissions to the authorized keys
+chmod 400 .ssh/authorized_keys
+chown root:root .ssh/authorized_keys

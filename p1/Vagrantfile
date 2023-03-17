@@ -1,81 +1,43 @@
-# Vagrant Config
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
-VM_BOX = "generic/alpine317"      # Debian 11
-VM_BOX_VERSION = "4.2.8"
-VM_PROVIDER = "virtualbox"
-VM_NETWORK = "private_network"
-VM_CPUS = "1"
-VM_MEMORY = "1024"
+require 'yaml'
 
-# Machines Config
-
-SERVER_NAME = "dzondaS"
-SERVER_IP = "192.168.56.110"
-
-SERVER_WORKER_NAME = "dzondaSW"
-SERVER_WORKER_IP = "192.168.56.111"
-
-# K3S Config
-
-# K3S_CHANNEL = 'latest'
-# K3S_VERSION = 'v1.21.10+k3s1'
+options = YAML.load_file('config.yml')
 
 Vagrant.configure("2") do |config|
-  # Box configs
-  config.vm.box = VM_BOX
-  config.vm.box_version = VM_BOX_VERSION
+  config.vm.box = options.fetch('vagrantbox')
 
-	# config.vm.synced_folder "./auth", "/shared", type: 'virtualbox'
-
-  # Require the `vagrant-vbguest` plugin.
-  # See the `vagrant-vbguest` section in the README.md
-  # config.vbguest.installer_options = { allow_kernel_upgrade: true }
-  # config.vbguest.auto_update = false
-
-  # Provider configs
-  config.vm.provider VM_PROVIDER do |vb|
-    vb.cpus = VM_CPUS
-    vb.memory = VM_MEMORY
+  config.vm.provider options.fetch('provider') do |vb|
+    vb.cpus = options.fetch('shared').fetch('cpu')
+    vb.memory = options.fetch('shared').fetch('ram')
   end
 
-  # config.vm.provision "shell", path: "scripts/firewalld-disable.sh"
+  config.vm.provision "file", source: "./auth", destination: "/home/vagrant/auth"
+  config.vm.provision "shell", path: "scripts/provision-base.sh"
 
-  # Shared configuration
-  # Copy the ssh keys to `/tmp` in the guest machine and run the provision script
-  # config.vm.provision "file", source: "./auth/id_rsa.pub", destination: "/tmp/id_rsa.pub"
-  # config.vm.provision "file", source: "./auth/id_rsa", destination: "/tmp/id_rsa"
-  # config.vm.provision "shell", path: "./scripts/provision-base.sh"
-
-  # config.vm.provision 'centos8-repos-point2vault', type: 'shell', run: 'once' do |sh|
-  #   sh.env = { :PATH => '/usr/local/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin' }
-  #   sh.inline = <<~'SHELL'
-  #     #!/bin/sh
-  #     find /etc/yum.repos.d -type f -name '*.repo' -exec \
-  #       sed -i -e '/mirrorlist.*/d' -e 's%#baseurl=http://mirror.centos.org%baseurl=http://vault.centos.org%g' {} \;
-  #   SHELL
-  # end
-
-  config.vm.define SERVER_NAME do |s|
-    s.vm.hostname = SERVER_NAME
-    s.vm.network VM_NETWORK, ip: SERVER_IP
-    s.vm.provider VM_PROVIDER do |vmp|
-      vmp.name = SERVER_NAME
+  # Server
+  config.vm.define options.fetch('server').fetch('hostname') do |server|
+    server.vm.hostname = options.fetch('server').fetch('hostname')
+    server.vm.network options.fetch('server').fetch('network'), ip: options.fetch('server').fetch('ip')
+    
+    server.vm.provider options.fetch('provider') do |provider|
+      provider.name = options.fetch('server').fetch('hostname')
     end
 
-    s.vm.provision "file", source: "./auth/id_rsa.pub", destination: "/home/vagrant/id_rsa.pub"
-    s.vm.provision "file", source: "./auth/id_rsa", destination: "/home/vagrant/id_rsa"
-    s.vm.provision "shell", privileged: true,  path: "./scripts/provision-server.sh"
+    server.vm.provision "shell", path: "scripts/provision-server.sh"
   end
 
-  # config.vm.define SERVER_WORKER_NAME do |sw|
-  #   sw.vm.hostname = SERVER_WORKER_NAME
-  #   sw.vm.network VM_NETWORK, ip: SERVER_WORKER_IP
-  #   sw.vm.provider VM_PROVIDER do |vmp|
-  #     vmp.name = SERVER_WORKER_NAME
-  #   end
+  # Worker
+  config.vm.define options.fetch('agent').fetch('hostname') do |worker|
+    worker.vm.hostname = options.fetch('agent').fetch('hostname')
+    worker.vm.network options.fetch('agent').fetch('network'), ip: options.fetch('agent').fetch('ip')
+    
+    worker.vm.provider options.fetch('provider') do |provider|
+      provider.name = options.fetch('agent').fetch('hostname')
+    end
 
-  #   sw.vm.provision "file", source: "./auth/id_rsa.pub", destination: "/tmp/id_rsa.pub"
-  #   sw.vm.provision "file", source: "./auth/id_rsa", destination: "/tmp/id_rsa"
-  #   kubenodes.vm.provision "shell", privileged: true,  path: "scripts/pro.sh"
-  # end
+    worker.vm.provision "shell", path: "scripts/provision-worker.sh"
+  end
 end
