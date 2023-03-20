@@ -4,8 +4,7 @@ source ./scripts/helper.sh
 
 APP_IP='0.0.0.0'
 APP_PORT='8888'
-APP_LOG='argocd.log'
-
+APP_LOG='app.log'
 
 deploy_app42() {
     info "Deploying App42..."
@@ -14,7 +13,7 @@ deploy_app42() {
     kubectl apply -f https://raw.githubusercontent.com/dz0nda/IoT/master/p3/app/application.yaml
 
     # Get ArgoCD password
-    APP_IP=$(kubectl get svc -n dev | grep "app42" | cut -d' ' -f10)
+    # APP_IP=$(kubectl get svc -n dev | grep "app42" | cut -d' ' -f10)
     
     # Forward port 8080 to the ArgoCD server
     # Retrieve it with: ps -ef | grep "nohup" | grep -v "grep"
