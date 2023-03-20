@@ -4,30 +4,34 @@
 
 require 'yaml'
 
-options = YAML.load_file('./vagrant/config.yml')
+options = YAML.load_file('config.yml')
 
 Vagrant.configure("2") do |config|
-  # Box config
-  config.vm.box = options.fetch('vagrantbox')
+  default = options.fetch('default')
 
-  # Shared provider config
-  config.vm.provider options.fetch('provider') do |vb|
-    vb.cpus = options.fetch('server').fetch('cpu')
-    vb.memory = options.fetch('server').fetch('ram')
-  end
+  options.fetch('machines').each do |name, machine|
+    config.vm.define "#{name}" do |instance|
+      instance.vm.box = machine.fetch('vagrantbox', false) || default.fetch('vagrantbox')
+      instance.vm.network machine.fetch('network') #, ip: machine.fetch('ip')
+      instance.vm.hostname = machine.fetch('hostname')
 
-  # Server
-  config.vm.define options.fetch('server').fetch('hostname') do |server|
-    server.vm.hostname = options.fetch('server').fetch('hostname')
-    server.vm.network options.fetch('server').fetch('network'), ip: options.fetch('server').fetch('ip')
-    
-    server.vm.synced_folder "./scripts", "/home/vagrant/scripts", type: "virtualbox"
+      instance.vm.provider default.fetch('provider') do |provider|
+        provider.name = machine.fetch('hostname')
+        provider.cpus = machine.fetch('cpu')
+        provider.memory = machine.fetch('ram')
+      end
 
-    # Provider config
-    server.vm.provider options.fetch('provider') do |vmp|
-      vmp.name = options.fetch('server').fetch('hostname')
+      instance.vm.synced_folder "./scripts", "/home/vagrant/scripts", type: "virtualbox"
+      
+      # if machine.fetch('provision', false)
+      #   machine.fetch('provision').fetch('files', []).each do |_, file|
+      #     instance.vm.provision "file", source: "#{file['src']}", destination: "#{file['out']}"
+      #   end
+
+      #   machine.fetch('provision').fetch('shell', []).each do |_, script|
+      #     instance.vm.provision "shell", path: "#{script['path']}"
+      #   end
+      # end
     end
-
-    # server.vm.provision :up, type: "file", path: "scripts/provision-server.sh"
   end
 end
