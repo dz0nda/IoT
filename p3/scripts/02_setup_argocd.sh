@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper.sh
+source ./scripts/helper.sh
 
 ARGOCD_VERSION='v2.6.6'
 ARGOCD_IP='0.0.0.0'

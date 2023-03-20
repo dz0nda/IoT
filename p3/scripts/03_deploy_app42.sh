@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper.sh
+source ./scripts/helper.sh
 
 APP_IP='0.0.0.0'
 APP_PORT='8888'

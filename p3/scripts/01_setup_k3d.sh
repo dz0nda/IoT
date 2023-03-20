@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper.sh
+source ./scripts/helper.sh
 
 setup_k3d() {
     info 'Creating k3d cluster and namespaces...'

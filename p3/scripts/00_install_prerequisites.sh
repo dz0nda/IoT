@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper.sh
+source ./scripts/helper.sh
 
 # # --- verify existence of commands executable ---
 # check_command() {
