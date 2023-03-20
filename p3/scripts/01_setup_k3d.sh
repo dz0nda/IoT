@@ -10,3 +10,4 @@ setup_k3d() {
     kubectl create namespace dev
 }
 
+setup_k3d
