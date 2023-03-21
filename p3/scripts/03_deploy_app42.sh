@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source ./scripts/helper.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/../../utils/helper.sh
 
 APP_IP='0.0.0.0'
 APP_PORT='8888'

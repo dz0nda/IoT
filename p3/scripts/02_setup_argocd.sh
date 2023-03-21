@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-source ./scripts/helper.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/../../utils/helper.sh
 
 ARGOCD_VERSION='v2.6.6'
 ARGOCD_IP='0.0.0.0'
 ARGOCD_PORT='8080'
 ARGOCD_LOG='argocd.log'
-
 
 setup_argocd() {
     info "Installing ArgoCD $ARGOCD_VERSION..."

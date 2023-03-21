@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source ./scripts/helper.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/../../utils/helper.sh
 
 # # --- verify existence of commands executable ---
 # check_command() {
