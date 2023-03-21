@@ -1,37 +1,84 @@
-#! /bin/sh
+#!/usr/bin/env bash
 
-OS=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+# --- helper functions for logs ---
+info()
+{
+    echo '[INFO] ' "$@"
+}
+warn()
+{
+    echo '[WARN] ' "$@" >&2
+}
+fatal()
+{
+    echo '[ERROR] ' "$@" >&2
+    exit 1
+}
+
+# --- use sudo if we are not already root ---
+SUDO=sudo
+if [ $(id -u) -eq 0 ]; then
+    SUDO=
+fi
+
+# --- fetch the OS system ---
+info "OS: $OSTYPE"
+
+# --- fetch the OS system ---
 
 # VirtualBox
-if ! [ -x "$(command -v vboxmanage)" ];
-then
-    echo " Installing Virtualbox..."
-    if [ "$OS" = "\"Ubuntu\"" ];
-    then
-        echo " Installing on Ubuntu..."
-        sudo apt-get install virtualbox
-        sudo apt-get install virtualbox—ext-pack
+if ! [ -x "$(command -v vboxmanage)" ]; then
+    info "Installing Virtualbox..."
+
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        OS=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+        if [ "$OS" = "\"Ubuntu\"" ]; then
+            info "Installing on Ubuntu..."
+
+            $SUDO apt-get install virtualbox
+            $SUDO apt-get install virtualbox—ext-pack
+        else
+            fatal "Linux OS not supported."
+        fi
+    elif  [[ "$OSTYPE" == "darwin"* ]]; then
+        info "Installing on Mac..."
+
+        brew install virtualbox --cask
+    else
+        fatal "OS not supported."
     fi
 
-    echo "\033[0;32m Virtualbox installed. \033[0m"
+    info "Virtualbox installed."
 else
-    echo "\033[0;32m VirtualBox already installed. \033[0m";
+    info "VirtualBox already installed.";
 fi
 
 # Vagrant
 if ! [ -x "$(command -v vagrant)" ];
 then
-    echo " Installing Vagrant..."
-    if [ "$OS" = "\"Ubuntu\"" ];
-    then
-        echo " Installing on Ubuntu..."
-        wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-        sudo apt update
-        sudo apt install vagrant
+    info "Installing Vagrant..."
+
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        OS=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+        if [ "$OS" = "\"Ubuntu\"" ]; then
+            info "Installing on Ubuntu..."
+
+            wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+            echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+            $SUDO apt update
+            $SUDO apt install vagrant
+        else
+            fatal "Linux OS not supported."
+        fi
+    elif  [[ "$OSTYPE" == "darwin"* ]]; then
+        info "Installing on Mac..."
+
+        brew install vagrant --cask
+    else
+        fatal "OS not supported."
     fi
 
-    echo "\033[0;32m Vagrant installed. \033[0m"
+    info "Vagrant installed."
 else
-    echo "\033[0;32m Vagrant already installed. \033[0m";
+    info "Vagrant already installed.";
 fi
