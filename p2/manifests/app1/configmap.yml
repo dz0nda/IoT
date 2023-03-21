@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app1-config
-data:
-  html-file-path: /home/vagrant/app/index.html
