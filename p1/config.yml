@@ -13,7 +13,7 @@ machines:
       files:
         ssh:
           src: "ssh"
-          out: "/ssh/vagrant/ssh"
+          out: "/home/vagrant/ssh"
       shell:
         base:
           path: "./scripts/provision-base.sh"
