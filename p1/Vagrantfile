@@ -6,9 +6,9 @@ require 'yaml'
 
 config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
 
-Vagrant.configure("2") do |config|
+Vagrant.configure("2") do |vagrant|
   config.fetch('machines').each do |name, machine|
-    config.vm.define "#{name}" do |instance|
+    vagrant.vm.define "#{name}" do |instance|
       instance.vm.box = machine.fetch('vagrantbox')
       instance.vm.network machine.fetch('network'), bridge: machine.fetch('bridge'), ip: machine.fetch('ip')
       instance.vm.hostname = machine.fetch('hostname')
