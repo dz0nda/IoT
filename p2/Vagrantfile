@@ -2,40 +2,34 @@
 # vi: set ft=ruby :
 
 require 'yaml'
-
 options = YAML.load_file('config.yml')
 
 Vagrant.configure("2") do |config|
-  config.vm.box = options.fetch('vagrantbox')
-
-  config.vm.provider options.fetch('provider') do |vb|
-    vb.cpus = options.fetch('server').fetch('cpu')
-    vb.memory = options.fetch('server').fetch('ram')
+  vm = options.fetch("vm")
+  base = vm.fetch("base")
+  network = vm.fetch("network")
+  provision = vm.fetch("provision")
+  # Setup base of the vm
+  config.vm.define base.fetch("hostname")
+  config.vm.box = base.fetch("version")
+  config.vm.hostname = base.fetch("hostname")
+  config.vm.provider base.fetch("provider") do |vm_virtualbox|
+    vm_virtualbox.gui = false
+    vm_virtualbox.name = base.fetch("hostname")
+    vm_virtualbox.memory = base.fetch("ram")
+    vm_virtualbox.cpus = base.fetch("cpu")
   end
+  # Network
+  config.vm.network "private_network", ip: network.fetch("ip")
+  config.vm.network "forwarded_port", guest: network.fetch("port_guest"), host: network.fetch("port_host")
+  #config.vm.network "public_network", bridge:"en0: Wi-fi (Airport)", ip: network.fetch("ip")
+  # ssh
+  config.ssh.keys_only = true
+  config.ssh.insert_key = true
+  config.ssh.keys_only = true
+  # Setup
+  #config.vm.synced_folder "k3s_cluster/", "/home/vagrant/k3s_cluster", type: "rsync"
+  config.vm.provision "file", source: "k3s_cluster", destination: "/home/vagrant/k3s_cluster"
+  config.vm.provision "shell", path: provision.fetch("shell")
 
-  config.vm.define options.fetch('server').fetch('hostname') do |server|
-    server.vm.hostname = options.fetch('server').fetch('hostname')
-    server.vm.network options.fetch('server').fetch('network'), ip: options.fetch('server').fetch('ip')
-    
-    server.vm.provider options.fetch('provider') do |vmp|
-      vmp.name = options.fetch('server').fetch('hostname')
-    end
-
-    
-    # server.vm.synced_folder "./manifests", "/home/vagrant/manifests", type: "virtualbox"
-    # server.vm.synced_folder "./src", "/home/vagrant/manifests", type: "virtualbox"
-    server.vm.provision "file", source: "./manifests", destination: "/home/vagrant/manifests"
-    server.vm.provision "file", source: "./src", destination: "/home/vagrant/app"
-    # server.vm.provision "file", source: "./src/index.html", destination: "/app/index.html"
-    server.vm.provision "shell", path: "scripts/provision-server.sh"
-    
-    # # Triggers
-    # server.trigger.after :up do |trigger|
-    #   trigger.name = "k3s"
-    #   trigger.info = "start k3s server"
-    #   trigger.run_remote = {
-    #     inline: "sh /home/vagrant/scripts/provision-server.sh"
-    #   }
-    # end
-  end
 end

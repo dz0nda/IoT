@@ -1,10 +1,14 @@
-vagrantbox: generic/alpine317
-vmguest: :alpine
-provider: virtualbox
-network: 192.168.56
-server:
-  hostname: dzondaS
-  cpu: 1
-  ram: 1024
-  ip: 192.168.56.110
-  network: private_network
+vm:
+  base:
+    version: "generic/alpine317"
+    provider: "virtualbox"
+    cpu: 2
+    ram: 2048
+    hostname: "gmadecS"
+  network:
+    ip: "192.168.42.110"
+    port_guest: 80
+    port_host: 8080
+  provision:
+    shell: "install.sh"
+
