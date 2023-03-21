@@ -1,14 +1,19 @@
-vm:
-  base:
-    version: "generic/alpine317"
-    provider: "virtualbox"
+machines:
+  server:
+    vagrantbox: generic/alpine317
+    provider: virtualbox
+    hostname: gmadecS
+    network: private_network
+    ip: 192.168.42.110
     cpu: 2
-    ram: 2048
-    hostname: "gmadecS"
-  network:
-    ip: "192.168.42.110"
-    port_guest: 80
-    port_host: 8080
-  provision:
-    shell: "install.sh"
-
+    ram: 1024
+    provision:
+      files:
+        manifests:
+          src: "manifests"
+          out: "/home/vagrant/manifests"
+      shell:
+        install_k3d:
+          path: "./scripts/install_k3d.sh"
+        deploy:
+          path: "./scripts/deploy.sh"
