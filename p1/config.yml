@@ -1,5 +1,5 @@
 machines:
-  server:
+  dzondaS:
     vagrantbox: generic/alpine317
     provider: virtualbox
     hostname: dzondaS
@@ -14,12 +14,15 @@ machines:
         ssh:
           src: "ssh"
           out: "/home/vagrant/ssh"
+        utils:
+          src: "../utils"
+          out: "/home/vagrant/utils"
       shell:
         base:
           path: "./scripts/provision-base.sh"
         server:
           path: "./scripts/provision-server.sh"
-  worker:
+  dzondaSW:
     vagrantbox: generic/alpine317
     provider: virtualbox
     hostname: dzondaSW 
@@ -34,6 +37,9 @@ machines:
         ssh:
           src: "ssh"
           out: "/home/vagrant/ssh"
+        utils:
+          src: "../utils"
+          out: "/home/vagrant/utils"
       shell:
         base:
           path: "./scripts/provision-base.sh"

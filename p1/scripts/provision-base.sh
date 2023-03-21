@@ -14,5 +14,5 @@ function setup_sshd() {
     service sshd restart
 }
 
-setup_ssh
+setup_ssh_keys
 setup_sshd
