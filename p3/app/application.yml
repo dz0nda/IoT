@@ -10,7 +10,7 @@ spec:
 
   # Source of the application manifests
   source:
-    repoURL: https://github.com/dz0nda/IoT.git
+    repoURL: https://github.com/guyb27/gmadec_IoT.git
     targetRevision: HEAD
     path: p3/app/dev
 
