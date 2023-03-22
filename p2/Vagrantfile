@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
   end
 
   # Network
-  config.vm.network "private_network", bridge: machine.fetch('bridge'), ip: network.fetch("ip")
+  config.vm.network "private_network", bridge: network.fetch('bridge'), ip: network.fetch("ip")
 
   # Setup
   config.vm.provision "file", source: "k3s_cluster", destination: "/home/vagrant/k3s_cluster"
