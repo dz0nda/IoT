@@ -15,8 +15,8 @@ machines:
           src: "ssh"
           out: "/home/vagrant/ssh"
         utils:
-          src: "../utils"
-          out: "/home/vagrant/utils"
+          src: "../utils/aliases.sh"
+          out: "/home/vagrant/aliases.sh"
       shell:
         base:
           path: "./scripts/provision-base.sh"
@@ -38,8 +38,8 @@ machines:
           src: "ssh"
           out: "/home/vagrant/ssh"
         utils:
-          src: "../utils"
-          out: "/home/vagrant/utils"
+          src: "../utils/aliases.sh"
+          out: "/home/vagrant/aliases.sh"
       shell:
         base:
           path: "./scripts/provision-base.sh"
