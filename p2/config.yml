@@ -5,6 +5,7 @@ vm:
     cpu: 2
     ram: 2048
     hostname: "gmadecS"
+    bridge: eth1
   network:
     ip: "192.168.42.110"
     port_guest: 80
