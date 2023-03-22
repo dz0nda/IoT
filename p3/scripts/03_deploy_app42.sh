@@ -11,15 +11,16 @@ deploy_app42() {
     info "Deploying App42..."
 
     # Add application to ArgoCD
-    # kubectl apply -f https://raw.githubusercontent.com/dz0nda/IoT/master/p3/app/application.yaml
-    kubectl apply -n argocd -f $SCRIPT_DIR/../app/application.yml
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/guyb27/gmadec_IoT/main/application.yml
+    info 'Waiting application to start...'
+    sleep 5
+    kubectl wait -n dev pods --all --for=condition=Ready --timeout=-1s
 
-    # Get ArgoCD password
+    # Get APP IP
     # APP_IP=$(kubectl get svc -n dev | grep "app42" | cut -d' ' -f10)
     
     # Forward port 8080 to the ArgoCD server
-    # Retrieve it with: ps -ef | grep "nohup" | grep -v "grep"
-    nohup kubectl port-forward -n dev svc/app42 $APP_PORT:$APP_PORT --address $APP_IP > $APP_LOG 2>&1 &
+    kubectl port-forward -n dev svc/app42 $APP_PORT:$APP_PORT --address $APP_IP > $APP_LOG 2>&1 &
 
     info "App42 is running on http://$APP_IP:$APP_PORT"
 }

@@ -19,11 +19,8 @@ setup_argocd() {
     ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
     
     # Forward port 8080 to the ArgoCD server
-    # Retrieve it with: ps -ef | grep "nohup" | grep -v "grep"
-    nohup kubectl port-forward svc/argocd-server -n argocd $ARGOCD_PORT:443 --address $ARGOCD_IP > $ARGOCD_LOG 2>&1 &
-    # screen -dmS argocd-port-forward bash -c "kubectl port-forward svc/argocd-server -n argocd $ARGOCD_PORT:443 --address $ARGOCD_IP > $ARGOCD_LOG 2>&1"
-    # screen -r kubectl-port-forward -X detach
-
+    # Retrieve it with: ps -ef | grep "nohup"
+    kubectl port-forward svc/argocd-server -n argocd $ARGOCD_PORT:443 --address $ARGOCD_IP > $ARGOCD_LOG 2>&1 &
 
     info "ArgoCD is running on https://$ARGOCD_IP:$ARGOCD_PORT"
     info "ArgoCD username: admin"
