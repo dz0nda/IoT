@@ -14,5 +14,10 @@ function setup_sshd() {
     service sshd restart
 }
 
+function setup_alias() {
+    cat /home/vagrant/aliases.sh >> /home/vagrant/.profile
+}
+
 setup_ssh_keys
 setup_sshd
+setup_alias

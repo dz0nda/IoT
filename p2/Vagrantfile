@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 require 'yaml'
-options = YAML.load_file('config.yml')
+options = YAML.load_file('confs/config.yml')
 
 Vagrant.configure("2") do |config|
   vm = options.fetch("vm")
@@ -25,7 +25,8 @@ Vagrant.configure("2") do |config|
   config.vm.network "private_network", bridge: network.fetch('bridge'), ip: network.fetch("ip")
 
   # Setup
-  config.vm.provision "file", source: "k3s_cluster", destination: "/home/vagrant/k3s_cluster"
+  config.vm.provision "file", source: "confs/k3s_cluster", destination: "/home/vagrant/k3s_cluster"
+  config.vm.provision "file", source: "../utils/aliases.sh", destination: "/home/vagrant/aliases.sh"
   config.vm.provision "shell", path: provision.fetch("shell")
 
 end

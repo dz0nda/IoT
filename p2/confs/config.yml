@@ -11,5 +11,5 @@ vm:
     port_host: 8080
     bridge: eth1
   provision:
-    shell: "install.sh"
+    shell: "scripts/install.sh"
 
