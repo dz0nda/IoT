@@ -12,7 +12,7 @@ deploy_app42() {
 
     # Add application to ArgoCD
     # kubectl apply -f https://raw.githubusercontent.com/dz0nda/IoT/master/p3/app/application.yaml
-    kubectl apply -n argocd -f ../app/application.yml
+    kubectl apply -n argocd -f $SCRIPT_DIR../app/application.yml
 
     # Get ArgoCD password
     # APP_IP=$(kubectl get svc -n dev | grep "app42" | cut -d' ' -f10)
